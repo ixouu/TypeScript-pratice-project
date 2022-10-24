@@ -1,3 +1,22 @@
+//autobind decorator
+// used to don't have to call bind method many times
+function autobind (
+    target: any, 
+    methodName: string, 
+    descriptor: PropertyDescriptor
+) {
+    const originalMethod = descriptor.value;
+    const adjDescriptor: PropertyDescriptor = {
+        configurable : true,
+        get () {
+            const boundFn = originalMethod.bind(this);
+            return boundFn;
+        }
+    };
+    return adjDescriptor;
+}
+
+// Project input Class
 class ProjectInput {
     templateElement : HTMLTemplateElement;
     hostElement : HTMLDivElement;
@@ -28,6 +47,7 @@ class ProjectInput {
 
     // Private limits the access of a method property inside of the class
 
+    @autobind
     // This method will trigger whenever the form is submitted
     private submitHandler(event : Event){
         event.preventDefault();
@@ -40,9 +60,11 @@ class ProjectInput {
     // and when it will execute we pass this to say this will be the same
     // this of the context of configure 
     private configure () {
-        this.element.addEventListener('submit', this.submitHandler.bind(this))
+        // this.element.addEventListener('submit', this.submitHandler.bind(this))
+        // bind is apply from the decorator, no need to call it anymore
+        this.element.addEventListener('submit', this.submitHandler)
     }
-
+    
     private attach(){
         this.hostElement.insertAdjacentElement('afterbegin', this.element)
     }
